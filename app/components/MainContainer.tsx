@@ -1,7 +1,21 @@
-const MainContainer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+import MainContent from "./MainContent";
+import Sidebar from "./Sidebar";
+
+const MainContainer: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   return (
-    <main>{children}</main>
+    <main className="flex-grow flex flex-col">
+      <div className="w-full flex-grow h-full flex">
+        <div>
+          <Sidebar />
+        </div>
+        <div className="bg-blue-200 w-full">
+          <MainContent>{children}</MainContent>
+        </div>
+      </div>
+    </main>
   );
-}
+};
 
 export default MainContainer;

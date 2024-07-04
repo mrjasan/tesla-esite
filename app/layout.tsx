@@ -20,7 +20,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <Providers>
-        <body>
+        <body className="subpixel-antialiased text-foreground">
           <MainLayout>{children}</MainLayout>
         </body>
       </Providers>

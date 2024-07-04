@@ -13,6 +13,10 @@
 body {
   font-family: 'Universal Sans', sans-serif;
 }
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Universal Sans', sans-serif;
+  color: 'rgb(23, 26, 32)';
+}
 
 @layer utilities {
   .text-balance {

@@ -1,9 +1,12 @@
 import Image from "next/image";
+import SectionTitle from "./components/SectionTitle";
 
 export default function Home() {
   return (
-    <main className="flex bg-slate-300 flex-col items-center justify-between p-24">
-      Content
-    </main>
+    <div>
+      <SectionTitle>Site Visualization</SectionTitle>
+      {/* Add your visualization components here */}
+      <div className="w-full h-64 bg-gray-200">Visualization Area</div>
+    </div>
   );
 }

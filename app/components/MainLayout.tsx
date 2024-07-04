@@ -9,10 +9,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div className="flex-shrink-0" >
         <Header />
       </div>
-      <div className="flex-grow bg-slate-200">
+      <div className="w-full h-full flex-grow flex flex-col">
         <MainContainer>{children}</MainContainer>
       </div>
-      <div className="flex-shrink-0" >
+      <div className="flex-shrink-0">
         <Footer />
       </div>
     </div>
