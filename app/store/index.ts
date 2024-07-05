@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
+import siteConfigReducer from './siteConfigSlice';
 
 const store = configureStore({
   reducer: {
-    // Add your reducers here
+    siteConfig: siteConfigReducer,
   },
 });
 

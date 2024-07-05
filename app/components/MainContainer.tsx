@@ -7,7 +7,7 @@ const MainContainer: React.FC<{ children: React.ReactNode }> = ({
   return (
     <main className="flex-grow flex flex-col">
       <div className="w-full flex-grow h-full flex">
-        <div>
+        <div className="min-w-[24rem]">
           <Sidebar />
         </div>
         <div className="bg-blue-200 w-full">

@@ -1,12 +1,13 @@
 import React from "react";
+import SectionDescription from "./SectionDescription";
 
 const Footer: React.FC = () => {
   return (
-    <footer>
+    <footer className="border-t border-gray-100 shadow-xs">
       <div className="p-6 justify-center text-center flex">
-        <p>
-          &copy; {new Date().getFullYear()} Made with ❤️ from Tesla at Palo Alto
-        </p>
+        <SectionDescription>
+        &copy; {new Date().getFullYear()} Made with ❤️ from Tesla at Palo Alto
+        </SectionDescription>
       </div>
     </footer>
   );

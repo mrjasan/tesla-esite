@@ -7,6 +7,9 @@
 5. set Universal-Sans font to match Tesla's brand
 6. add tesla logo
 7. setup layout, header and footer
+8. create sample device data
+9. update sidebar layout and components
+10. setup redux actions for managing the state
 
 ## Getting Started
 
