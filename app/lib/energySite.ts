@@ -1,6 +1,6 @@
 // lib/energySite.ts
 import { devices } from "@/app/data";
-import { GridItem, GridLayout, SiteConfig } from "../types";
+import { Device, GridItem, GridLayout, SiteConfig } from "../types";
 
 // Class to manage an energy site
 class EnergySite {
@@ -13,7 +13,6 @@ class EnergySite {
   constructor(siteConfig: { [key: string]: number }) {
     this.siteConfig = siteConfig;
   }
-
 
   /**
    * Get the amount of transformers needed for the site.
@@ -30,7 +29,6 @@ class EnergySite {
       },
       0
     );
-
     return Math.floor(totalBatteries / 4);
   }
 
@@ -38,7 +36,8 @@ class EnergySite {
    * @returns True if the site configuration is valid, false otherwise
    */
   get isValid() {
-    const validTransformers = this.siteConfig["transformer"] >= this.minimumTransformersNeeded;
+    const validTransformers =
+      this.siteConfig["transformer"] >= this.minimumTransformersNeeded;
     return validTransformers;
   }
 
@@ -95,12 +94,12 @@ class EnergySite {
   }
 
   /**
-   * Get the grid layout of the site. 
+   * Get the grid layout of the site.
    * This is greedy algorithm that places devices in the grid from left to right, top to bottom.
    * TODO: Implement a more sophisticated algorithm to place devices in the grid optimally.
    * @returns The grid layout of the site
    */
-  getGridLayout(): GridLayout {
+  getGridLayoutGreedy(): GridLayout {
     const gridItems: GridItem[] = [];
     // cursor of horizontal offset
     let currentX = 0;
@@ -113,7 +112,7 @@ class EnergySite {
     const maxWidth = 100;
 
     for (const [id, quantity] of Object.entries(this.siteConfig)) {
-      const device = devices.find(device => device.id === id);
+      const device = devices.find((device) => device.id === id);
       // make sure the device is valid
       if (!device) continue;
 
@@ -127,16 +126,17 @@ class EnergySite {
         }
 
         gridItems.push({
+          i: `${i}-${device.id}`,
           x: currentX,
           y: currentY,
-          width: device.dimensions.width,
-          depth: device.dimensions.depth,
+          w: device.dimensions.width,
+          h: device.dimensions.depth,
           deviceId: device.id,
         });
 
         // update the cursor and row height
         currentX += device.dimensions.width;
-        if(currentX > actualMaxWidth) {
+        if (currentX > actualMaxWidth) {
           actualMaxWidth = currentX;
         }
         // the row height is the height of the tallest device in the row
@@ -147,6 +147,93 @@ class EnergySite {
     return {
       width: actualMaxWidth,
       depth: currentY + rowHeight,
+      items: gridItems,
+    };
+  }
+
+  /**
+   * Generates an optimal grid layout for the site. Using First Fit Decreasing algorithm.
+   * @returns The grid layout of the site
+   */
+  getGridLayout(): GridLayout {
+    const gridItems: GridItem[] = [];
+    const maxWidth = 100;
+
+    // Flatten the devices and sort them in descending order by width (for better fitting)
+    const allDevices = Object.entries(this.siteConfig)
+      .flatMap(([id, quantity]) => {
+        const device = devices.find((device) => device.id === id);
+        return device ? Array(quantity).fill(device) : [];
+      })
+      .sort((a, b) => b.dimensions.width - a.dimensions.width);
+
+    let currentY = 0; // cursor of vertical offset
+    let row = []; // current row items
+    let index = 0;
+
+    const placeRow = (row: Array<Device>, y: number) => {
+      let x = 0;
+      let rowHeight = 0;
+
+      row.forEach((device) => {
+        gridItems.push({
+          x,
+          y,
+          w: device.dimensions.width,
+          h: device.dimensions.depth,
+          deviceId: device.id,
+          i: `${index++}-${device.id}`,
+        });
+        x += device.dimensions.width;
+        rowHeight = Math.max(rowHeight, device.dimensions.depth);
+      });
+
+      return rowHeight;
+    };
+
+    // while we have devices to place, try to place them in the grid
+    while (allDevices.length > 0) {
+      let currentX = 0; // cursor of horizontal offset
+      row = []; // current row items
+      const remainingDevices = [];
+
+      // Attempt to place devices in the current row
+      // this will go all the way to the end trying to find a device to place on the grid
+      while (allDevices.length > 0) {
+        // remove the first device from the list
+        const device = allDevices.shift();
+        // if this device fits in the current row, add it to the row
+        if (currentX + device.dimensions.width <= maxWidth) {
+          row.push(device);
+          // move the cursor
+          currentX += device.dimensions.width;
+        }
+        // if the device doesn't fit, add it to the remaining devices
+        else {
+          remainingDevices.push(device);
+        }
+      }
+
+      // we got to the end of all devices and we can not place more devices on the current row
+      // re add the remaining devices back to the list of all devices sorted by width ( is this necessary?)
+      allDevices.push(
+        ...remainingDevices.sort(
+          (a, b) => b.dimensions.width - a.dimensions.width
+        )
+      );
+
+      // Place the current row and update the cursor
+      const rowHeight = placeRow(row, currentY);
+      currentY += rowHeight;
+    }
+
+    const actualMaxWidth = Math.max(
+      ...gridItems.map((item) => item.x + item.w),
+      0
+    );
+    return {
+      width: Math.min(actualMaxWidth, maxWidth),
+      depth: currentY,
       items: gridItems,
     };
   }

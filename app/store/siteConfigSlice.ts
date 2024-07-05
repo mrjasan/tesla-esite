@@ -1,15 +1,21 @@
 // store/siteConfigSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { devices } from '../data';
-import { DeviceType, SiteConfig } from '../types';
+import { GridItem, SiteConfig } from '../types';
 import EnergySite from '../lib/energySite';
 
 // key value pair of device id and count
-interface SiteConfigState extends SiteConfig {}
+interface SiteConfigState {
+  deviceCount: SiteConfig;
+  layout: Array<GridItem>
+}
 
 // intialize state with 0 count for each device
-const initialState: SiteConfigState = {};
-devices.forEach((device) => {initialState[device.id] = 0;});
+const initialState: SiteConfigState = {
+  deviceCount: {},
+  layout: []
+};
+devices.forEach((device) => {initialState.deviceCount[device.id] = 0;});
 
 const siteConfigSlice = createSlice({
   name: 'siteConfig',
@@ -22,27 +28,32 @@ const siteConfigSlice = createSlice({
 
       if (!device) return;
 
-      state[deviceId] = (state[deviceId] || 0) + 1;
+      state.deviceCount[deviceId] = (state.deviceCount[deviceId] || 0) + 1;
 
        // Use EnergySite class to calculate transformers
-       const site = new EnergySite(state);
+       const site = new EnergySite(state.deviceCount);
        const requiredTransformers = site.minimumTransformersNeeded;
  
-       state['transformer'] = requiredTransformers;
+       state.deviceCount['transformer'] = requiredTransformers;
     },
     // remove device from site config
     removeDevice: (state, action: PayloadAction<string>) => {
       // only decrement if count is greater than 0
-      if (state[action.payload] > 0) {
-        state[action.payload] -= 1;
+      if (state.deviceCount[action.payload] > 0) {
+        state.deviceCount[action.payload] -= 1;
       }
 
       // Use EnergySite class to calculate transformers
-      const site = new EnergySite(state);
+      const site = new EnergySite(state.deviceCount);
       const requiredTransformers = site.minimumTransformersNeeded;
 
-      state['transformer'] = requiredTransformers;
+      state.deviceCount['transformer'] = requiredTransformers;
     },
+
+    // set the layout
+    setLayout: (state, action: PayloadAction<Array<GridItem>>) => {
+      state.layout = action.payload;
+    } 
   },
 });
 

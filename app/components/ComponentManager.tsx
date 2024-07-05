@@ -13,12 +13,13 @@ import DeviceSummary from "./DeviceSummary";
 const ComponentManager: React.FC = () => {
   const dispatch = useDispatch();
   const siteConfig = useSelector((state: RootState) => state.siteConfig);
-  const eSite = new EnergySite(siteConfig);
+  const { deviceCount } = siteConfig;
+  const eSite = new EnergySite(deviceCount);
 
   return (
     <div className="py-2">
       {devices.map((device) => {
-        const quantity = siteConfig[device.id] || 0;
+        const quantity = deviceCount[device.id] || 0;
         const isTransformer = device.id === "transformer";
         return (
           <div

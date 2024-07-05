@@ -21,10 +21,11 @@ export type SiteConfig = {
 };
 
 export interface GridItem {
+  i: string;
   x: number;
   y: number;
-  width: number;
-  depth: number;
+  w: number;
+  h: number;
   deviceId: string;
 }
 
