@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 
+
 @font-face {
   font-family: 'Universal Sans';
   src: url('/fonts/Universal-Sans-Text-Regular.woff2') format('woff2');

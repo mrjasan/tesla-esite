@@ -1,6 +1,8 @@
 import { Noto_Sans } from "@next/font/google"
 import type { Metadata } from "next";
 import "./globals.css";
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 import Providers from "./providers";
 import MainLayout from "./components/MainLayout";
 
