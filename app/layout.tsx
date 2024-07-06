@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import { Toaster } from "./components/ui/sonner"
 import Providers from "./providers";
 import MainLayout from "./components/MainLayout";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
       <Providers>
         <body className="subpixel-antialiased text-foreground">
           <MainLayout>{children}</MainLayout>
+          <Toaster />
         </body>
       </Providers>
     </html>

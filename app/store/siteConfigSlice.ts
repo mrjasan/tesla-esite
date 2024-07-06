@@ -17,10 +17,24 @@ const initialState: SiteConfigState = {
 };
 devices.forEach((device) => {initialState.deviceCount[device.id] = 0;});
 
+const updateTransformers = (state: SiteConfigState) => {
+  // Use EnergySite class to calculate transformers
+  const site = new EnergySite(state.deviceCount);
+  const requiredTransformers = site.minimumTransformersNeeded;
+
+  state.deviceCount['transformer'] = requiredTransformers;
+
+}
+
 const siteConfigSlice = createSlice({
   name: 'siteConfig',
   initialState,
   reducers: {
+    reset: (state) => {
+      state.deviceCount = {};
+      devices.forEach((device) => {state.deviceCount[device.id] = 0;});
+      state.layout = [];
+    },
     // add device to site config
     addDevice: (state, action: PayloadAction<string>) => {
       const deviceId = action.payload;
@@ -30,11 +44,7 @@ const siteConfigSlice = createSlice({
 
       state.deviceCount[deviceId] = (state.deviceCount[deviceId] || 0) + 1;
 
-       // Use EnergySite class to calculate transformers
-       const site = new EnergySite(state.deviceCount);
-       const requiredTransformers = site.minimumTransformersNeeded;
- 
-       state.deviceCount['transformer'] = requiredTransformers;
+      updateTransformers(state);
     },
     // remove device from site config
     removeDevice: (state, action: PayloadAction<string>) => {
@@ -42,12 +52,14 @@ const siteConfigSlice = createSlice({
       if (state.deviceCount[action.payload] > 0) {
         state.deviceCount[action.payload] -= 1;
       }
+      updateTransformers(state);
+    },
 
-      // Use EnergySite class to calculate transformers
-      const site = new EnergySite(state.deviceCount);
-      const requiredTransformers = site.minimumTransformersNeeded;
+    setQuantity: (state, action: PayloadAction<{deviceId: string, quantity: number}>) => {
+      const { deviceId, quantity } = action.payload;
+      state.deviceCount[deviceId] = quantity;
 
-      state.deviceCount['transformer'] = requiredTransformers;
+      updateTransformers(state);
     },
 
     // set the layout
@@ -57,5 +69,5 @@ const siteConfigSlice = createSlice({
   },
 });
 
-export const { addDevice, removeDevice } = siteConfigSlice.actions;
+export const { addDevice, removeDevice, setQuantity, reset } = siteConfigSlice.actions;
 export default siteConfigSlice.reducer;

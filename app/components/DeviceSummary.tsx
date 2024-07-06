@@ -22,14 +22,14 @@ const DeviceSummary = ({ device }: { device: Device }) => {
     <div>
       <Collapsible>
         <CollapsibleTrigger>
-          <p className="text-sm underline">{device.name}</p>
+          <span className="text-sm underline">{device.name}</span>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="py-1">
             <p className="text-gray-500 text-xs">{device.description}</p>
             <Drawer>
               <DrawerTrigger>
-                <p className="text-gray-500 text-xs underline">More Details</p>
+                <span className="text-gray-500 text-xs underline">More Details</span>
               </DrawerTrigger>
               <DrawerContent>
                 <div className="mx-auto w-[640px] text-center h-[640px]">

@@ -14,6 +14,9 @@ class EnergySite {
     this.siteConfig = siteConfig;
   }
 
+  get deviceCount() {
+    return this.siteConfig;
+  }
   /**
    * Get the amount of transformers needed for the site.
    * Assumes that for every 4 batteries, a transformer is needed.
@@ -38,7 +41,7 @@ class EnergySite {
   get isValid() {
     const validTransformers =
       this.siteConfig["transformer"] >= this.minimumTransformersNeeded;
-    return validTransformers;
+    return this.totalDevices > 0 && validTransformers;
   }
 
   /**
@@ -50,6 +53,16 @@ class EnergySite {
       const device = devices.find((device) => device.id === id);
       if (device) {
         total += device.dimensions.width * device.dimensions.depth * quantity;
+      }
+      return total;
+    }, 0);
+  }
+
+  get totalDevices() {
+    return Object.entries(this.siteConfig).reduce((total, [id, quantity]) => {
+      const device = devices.find((device) => device.id === id);
+      if (device) {
+        total += quantity;
       }
       return total;
     }, 0);

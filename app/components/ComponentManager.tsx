@@ -5,10 +5,13 @@ import { Input } from "./ui/input";
 import { Decimals, USDollar, cn } from "@/app/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
-import { addDevice, removeDevice } from "../store/siteConfigSlice";
+import { addDevice, removeDevice, setQuantity, reset } from "../store/siteConfigSlice";
 import EnergySite from "../lib/energySite";
 import DeviceSummary from "./DeviceSummary";
-
+import SubmitConfiguration from "./SubmitConfiguration";
+import { Separator } from "./ui/separator";
+import { Button } from "./ui/button";
+import { RotateCcw } from "lucide-react";
 
 const ComponentManager: React.FC = () => {
   const dispatch = useDispatch();
@@ -45,6 +48,15 @@ const ComponentManager: React.FC = () => {
                 type="number"
                 disabled={isTransformer}
                 value={quantity}
+                readOnly={isTransformer}
+                onChange={(e) => {
+                  dispatch(
+                    setQuantity({
+                      deviceId: device.id,
+                      quantity: parseInt(e.target.value),
+                    })
+                  );
+                }}
               />
               <button
                 className={cn(
@@ -63,37 +75,45 @@ const ComponentManager: React.FC = () => {
 
       <div className="mb-10 flex flex-row justify-between items-start">
         <div className="">
-          <p className="tracking-wide text-gray-550 text-sm">Estimated Area</p>
-          <p className="text-xs text-gray-400 tracking-wide">
-            Estimated area of the site
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-gray-500 text-sm">
-            {Decimals.format(eSite.totalSquareFootage)} sqft
-          </p>
-        </div>
-      </div>
-      <div className="mb-10 flex flex-row justify-between items-start">
-        <div className="">
-          <p className="tracking-wide text-gray-550 text-sm">Energy Density</p>
+          <span className="tracking-wide text-gray-550 text-sm">Energy Density</span>
           <p className="text-xs text-gray-400 tracking-wide">
             Energy stored per unit of land area.
           </p>
         </div>
         <div className="text-right">
-          <p className="text-gray-500 text-sm">
-            {eSite.energyDensity.toFixed(2)} MWh/sqft
-          </p>
+          <span className="text-gray-500 text-sm">
+            {eSite.totalEnergy.toFixed(2)} MWh
+          </span>
         </div>
       </div>
       <div className="mb-10 flex flex-row justify-between items-start">
-        <div>
-          <p className="">Total Cost</p>
+        <div className="">
+          <span className="tracking-wide text-gray-550 text-sm">Estimated Area</span>
+          <p className="text-xs text-gray-400 tracking-wide">
+            Estimated area of the site
+          </p>
         </div>
         <div className="text-right">
-          <p className="text-gray-600">{USDollar.format(eSite.totalCost)}</p>
+          <span className="text-gray-500 text-sm">
+            {Decimals.format(eSite.totalSquareFootage)} sqft
+          </span>
         </div>
+      </div>
+      <Separator  />
+      <div className="my-5 flex flex-row justify-between items-start text-md">
+        <div>
+          <span className="">Total Cost</span>
+        </div>
+        <div className="text-right">
+          <span>{USDollar.format(eSite.totalCost)}</span>
+        </div>
+      </div>
+      <div className="w-full my-5">
+        <Button className="m-0 p-0 underline text-gray-600 text-sm" variant={"link"} onClick={() => {dispatch(reset())}}>
+        Start Over</Button>
+      </div>
+      <div className="w-full mx-auto">
+        <SubmitConfiguration eSite={eSite} />
       </div>
     </div>
   );
