@@ -2,16 +2,16 @@
 import React from "react";
 import SectionTitle from "./SectionTitle";
 import SectionDescription from "./SectionDescription";
-import ComponentManager from "./ComponentManager";
+import DeviceManager from "./DeviceManager";
 
 const Sidebar: React.FC = () => {
   return (
-    <div className="py-4 px-10 h-full border-r border-gray-100">
-      <SectionTitle>Components</SectionTitle>
+    <div className="py-4 px-10 border-r border-gray-100flex-grow h-full">
+      <SectionTitle>Devices</SectionTitle>
       <SectionDescription>
-        Manage the assembly of batteries and components for your Industrial Energy Site.
+        Manage the assembly of batteries and devices for your Industrial Energy Site.
       </SectionDescription>
-      <ComponentManager />
+      <DeviceManager />
     </div>
   );
 };

@@ -7,13 +7,11 @@ import EnergySite from '../lib/energySite';
 // key value pair of device id and count
 interface SiteConfigState {
   deviceCount: SiteConfig;
-  layout: Array<GridItem>
 }
 
 // intialize state with 0 count for each device
 const initialState: SiteConfigState = {
   deviceCount: {},
-  layout: []
 };
 devices.forEach((device) => {initialState.deviceCount[device.id] = 0;});
 
@@ -33,7 +31,6 @@ const siteConfigSlice = createSlice({
     reset: (state) => {
       state.deviceCount = {};
       devices.forEach((device) => {state.deviceCount[device.id] = 0;});
-      state.layout = [];
     },
     // add device to site config
     addDevice: (state, action: PayloadAction<string>) => {
@@ -62,10 +59,11 @@ const siteConfigSlice = createSlice({
       updateTransformers(state);
     },
 
-    // set the layout
-    setLayout: (state, action: PayloadAction<Array<GridItem>>) => {
-      state.layout = action.payload;
-    } 
+    // load a specific configuration
+    loadConfig: (state, action: PayloadAction<SiteConfig>) => {
+      state.deviceCount = action.payload;
+      updateTransformers(state);
+    },
   },
 });
 

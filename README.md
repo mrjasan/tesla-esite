@@ -8,8 +8,13 @@
 6. add tesla logo
 7. setup layout, header and footer
 8. create sample device data
-9. update sidebar layout and components
-10. setup redux actions for managing the state
+9. add shadcn components -> https://ui.shadcn.com/
+10. update sidebar layout and components
+11. setup redux slice for managing the state of the site configuration
+12. create energy site class for calculating energy site metrics and layout
+13. implement energy site layout preview
+14. implement submit order
+15. setup redux slice to manage a list of configurations and persist them
 
 ## Getting Started
 

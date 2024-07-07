@@ -1,10 +1,11 @@
 // components/Content.tsx
-import React from 'react';
+import React from "react";
 
-const MainContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>  {
+
+const MainContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="bg-neutral-100 py-4 px-10 h-full w-full">
-     {children}
+    <div className="w-full flex-grow flex overflow-scroll">
+      {children}
     </div>
   );
 };
