@@ -20,7 +20,7 @@ const testSite: IndustrialSite = {
   name: 'Test Site',
   description: '',
   status: 'draft',
-  devices: { transformer: 0 },
+  devices: { },
   lastModified: Date.now(),
 };
 
@@ -63,6 +63,7 @@ describe('siteCollectionSlice', () => {
     expect(actual.sites[0].devices.transformer).toBe(0);
   });
 
+  
   it('should handle resetSite', () => {
     const stateWithSite = {
       sites: [{ ...testSite, devices: { transformer: 1 } }],
@@ -89,5 +90,14 @@ describe('siteCollectionSlice', () => {
       setQuantity({ id: 'test-site', deviceId: 'powerpack', quantity: 5 })
     );
     expect(actual.sites[0].devices['powerpack']).toBe(5);
+  });
+
+  it('should enforce transformer requirement', () => {
+    const stateWithSite = { sites: [testSite], latestSite: testSite };
+    const actual = reducer(
+      stateWithSite,
+      setQuantity({ id: 'test-site', deviceId: 'powerpack', quantity: 5})
+    );
+    expect(actual.sites[0].devices['transformer']).toBe(1);
   });
 });
