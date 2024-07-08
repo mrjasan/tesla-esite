@@ -9,7 +9,7 @@ import { RootState } from "@/app/store";
 import { IndustrialSite } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 export default function Home() {
   const router = useRouter();
