@@ -1,29 +1,34 @@
 // lib/energySite.ts
-import { devices } from "@/app/data";
-import { Device, GridItem, GridLayout, SiteConfig } from "../types";
+import { Device, GridItem, GridLayout, SiteDevices } from "../types";
+import { supportedDeviceById } from "./utils";
 
 // Class to manage an energy site
 class EnergySite {
-  private siteConfig: SiteConfig;
+  private devices: SiteDevices;
 
   /**
    * Creates a new instance of the EnergySite class
-   * @param siteConfig - The site configuration
+   * @param siteDevices - The device selection for the site
    */
-  constructor(siteConfig: { [key: string]: number }) {
-    this.siteConfig = siteConfig;
+  constructor(siteDevices: { [key: string]: number }) {
+    this.devices = siteDevices;
   }
 
-  get deviceCount() {
-    return this.siteConfig;
+  /**
+   * Get the site devices
+   * @returns The site devices
+   */
+  get siteDevices() {
+    return this.devices;
   }
+
   /**
    * Get the amount of transformers needed for the site.
    * Assumes that for every 4 batteries, a transformer is needed.
-   * @returns A number that indicates the minimum amount transformers needed for the site given the number of batteries in the site configuration
+   * @returns A number that indicates the minimum amount transformers needed for the site given the number of batteries in the site devices
    */
   get minimumTransformersNeeded(): number {
-    const totalBatteries = Object.entries(this.siteConfig).reduce(
+    const totalBatteries = Object.entries(this.devices).reduce(
       (sum, [id, quantity]) => {
         if (id !== "transformer") {
           sum += quantity;
@@ -36,11 +41,11 @@ class EnergySite {
   }
 
   /**
-   * @returns True if the site configuration is valid, false otherwise
+   * @returns True if the selection of devices for the site is valid, false otherwise
    */
   get isValid() {
     const validTransformers =
-      this.siteConfig["transformer"] >= this.minimumTransformersNeeded;
+      this.devices["transformer"] >= this.minimumTransformersNeeded;
     return this.totalDevices > 0 && validTransformers;
   }
 
@@ -49,8 +54,8 @@ class EnergySite {
    * @returns The total square footage of the site
    */
   get totalSquareFootage() {
-    return Object.entries(this.siteConfig).reduce((total, [id, quantity]) => {
-      const device = devices.find((device) => device.id === id);
+    return Object.entries(this.devices).reduce((total, [id, quantity]) => {
+      const device = supportedDeviceById(id);
       if (device) {
         total += device.dimensions.width * device.dimensions.depth * quantity;
       }
@@ -58,9 +63,13 @@ class EnergySite {
     }, 0);
   }
 
+  /**
+   * Get the total number of devices in the site
+   * @returns The total number of devices in the site
+   */
   get totalDevices() {
-    return Object.entries(this.siteConfig).reduce((total, [id, quantity]) => {
-      const device = devices.find((device) => device.id === id);
+    return Object.entries(this.devices).reduce((total, [id, quantity]) => {
+      const device = supportedDeviceById(id);
       if (device) {
         total += quantity;
       }
@@ -73,8 +82,8 @@ class EnergySite {
    * @returns The total energy of the site
    */
   get totalEnergy() {
-    return Object.entries(this.siteConfig).reduce((total, [id, quantity]) => {
-      const device = devices.find((device) => device.id === id);
+    return Object.entries(this.devices).reduce((total, [id, quantity]) => {
+      const device = supportedDeviceById(id);
       if (device) {
         total += device.energy * quantity;
       }
@@ -83,7 +92,8 @@ class EnergySite {
   }
 
   /**
-   * Get the energy density of the site
+   * Get the energy density of the site (energy per square foot) defined as the total energy divided by the total square footage.
+   * Different from the total energy of the site
    * @returns The energy density of the site
    */
   get energyDensity() {
@@ -97,8 +107,8 @@ class EnergySite {
    * @returns The total cost of the site
    */
   get totalCost() {
-    return Object.entries(this.siteConfig).reduce((total, [id, quantity]) => {
-      const device = devices.find((device) => device.id === id);
+    return Object.entries(this.devices).reduce((total, [id, quantity]) => {
+      const device = supportedDeviceById(id);
       if (device) {
         total += device.price * quantity;
       }
@@ -124,8 +134,8 @@ class EnergySite {
     let actualMaxWidth = 0;
     const maxWidth = 100;
 
-    for (const [id, quantity] of Object.entries(this.siteConfig)) {
-      const device = devices.find((device) => device.id === id);
+    for (const [id, quantity] of Object.entries(this.devices)) {
+      const device = supportedDeviceById(id);
       // make sure the device is valid
       if (!device) continue;
 
@@ -173,9 +183,9 @@ class EnergySite {
     const maxWidth = 100;
 
     // Flatten the devices and sort them in descending order by width (for better fitting)
-    const allDevices = Object.entries(this.siteConfig)
+    const allDevices = Object.entries(this.devices)
       .flatMap(([id, quantity]) => {
-        const device = devices.find((device) => device.id === id);
+        const device = supportedDeviceById(id);
         return device ? Array(quantity).fill(device) : [];
       })
       .sort((a, b) => b.dimensions.width - a.dimensions.width);

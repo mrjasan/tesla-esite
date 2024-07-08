@@ -16,9 +16,19 @@ export interface Device {
   };
 }
 
-export type SiteConfig = {
+export type SiteDevices = {
   [key: string]: number;
 };
+
+export interface IndustrialSite {
+  id: string;
+  name: string;
+  description?: string;
+  coordinates?: { lat: number; lon: number };
+  devices: SiteDevices;
+  status: 'draft' | 'submitted';
+  lastModified: number;
+}
 
 export interface GridItem {
   i: string;

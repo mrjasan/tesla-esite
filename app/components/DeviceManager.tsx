@@ -1,32 +1,27 @@
 "use client"; // let's make sure this component is treated as a Client Component
 
-import { devices } from "../data";
+import { supportedDevices } from "../data";
 import { Input } from "./ui/input";
 import { Decimals, USDollar, cn } from "@/app/lib/utils";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store";
-import {
-  addDevice,
-  removeDevice,
-  setQuantity,
-  reset,
-} from "../store/siteConfigSlice";
+import { useDispatch } from "react-redux";
+
 import EnergySite from "../lib/energySite";
 import DeviceSummary from "./DeviceSummary";
 import SubmitConfiguration from "./SubmitConfiguration";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
+import { IndustrialSite } from "../types";
+import { addDevice, removeDevice, resetSite, setQuantity } from "../store/siteCollectionSlice";
 
-const DeviceManager: React.FC = () => {
+const DeviceManager = ({ site }: { site: IndustrialSite }) => {
   const dispatch = useDispatch();
-  const siteConfig = useSelector((state: RootState) => state.siteConfig);
-  const { deviceCount } = siteConfig;
-  const eSite = new EnergySite(deviceCount);
+  const { devices } = site;
+  const eSite = new EnergySite(devices);
 
   return (
     <div className="py-2 ">
-      {devices.map((device) => {
-        const quantity = deviceCount[device.id] || 0;
+      {supportedDevices.map((device) => {
+        const quantity = devices[device.id] || 0;
         const isTransformer = device.id === "transformer";
         return (
           <div
@@ -43,7 +38,7 @@ const DeviceManager: React.FC = () => {
                   isTransformer && "text-gray-300"
                 )}
                 disabled={isTransformer}
-                onClick={() => dispatch(removeDevice(device.id))}
+                onClick={() => dispatch(removeDevice({id:site.id, deviceId:device.id}))}
               >
                 {isTransformer ? <span>&nbsp;&nbsp;</span> : <span>-</span>}
               </button>
@@ -56,6 +51,7 @@ const DeviceManager: React.FC = () => {
                 onChange={(e) => {
                   dispatch(
                     setQuantity({
+                      id: site.id,
                       deviceId: device.id,
                       quantity: parseInt(e.target.value),
                     })
@@ -68,7 +64,9 @@ const DeviceManager: React.FC = () => {
                   isTransformer && "text-gray-300"
                 )}
                 disabled={isTransformer}
-                onClick={() => dispatch(addDevice(device.id))}
+                onClick={() =>
+                  dispatch(addDevice({ id: site.id, deviceId: device.id }))
+                }
               >
                 {isTransformer ? <span>&nbsp;&nbsp;</span> : <span>+</span>}
               </button>
@@ -121,14 +119,14 @@ const DeviceManager: React.FC = () => {
           className="m-0 p-0 underline text-gray-600 text-sm"
           variant={"link"}
           onClick={() => {
-            dispatch(reset());
+            dispatch(resetSite(site.id));
           }}
         >
           Start Over
         </Button>
       </div>
       <div className="w-full mx-auto">
-        <SubmitConfiguration eSite={eSite} />
+        <SubmitConfiguration site={site} />
       </div>
     </div>
   );

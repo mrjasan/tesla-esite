@@ -2,17 +2,15 @@
 // components/EnergySiteGridLayout.tsx
 import React from "react";
 import GridLayout from "react-grid-layout";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 import EnergySite from "../lib/energySite";
-import { devices } from "../data";
 import { LayoutTemplate } from "lucide-react";
-import { Decimals } from "../lib/utils";
+import { Decimals, supportedDeviceById } from "../lib/utils";
 import DeviceGridCard from "./DeviceGridCard";
+import { IndustrialSite } from "../types";
 
-const SiteLayout: React.FC = () => {
-  const siteConfig = useSelector((state: RootState) => state.siteConfig);
-  const eSite = new EnergySite(siteConfig.deviceCount);
+const SiteLayout= ({site}: {site: IndustrialSite}) => {
+  const { devices } = site;
+  const eSite = new EnergySite(devices);
   const layout = eSite.getGridLayout().items;
 
   return (
@@ -23,13 +21,13 @@ const SiteLayout: React.FC = () => {
           <div className="text-xs space-x-6 tracking-wider text-gray-500">
             <span>Area: {Decimals.format(eSite.totalSquareFootage)} sqft</span>
             <span>Energy: {eSite.totalEnergy.toFixed(2)} MWh</span>
-            {Object.entries(siteConfig.deviceCount)
+            {Object.entries(devices)
               .filter(([_, q]) => q)
               .map(([id, quantity]) => {
-                const device = devices.find((device) => device.id === id);
+                const device = supportedDeviceById(id);
                 return (
                   <span key={id}>
-                    {device?.name}: {quantity}
+                    {device.name}: {quantity}
                   </span>
                 );
               })}
@@ -55,9 +53,7 @@ const SiteLayout: React.FC = () => {
             containerPadding={[20, 20]}
           >
             {layout.map((item) => {
-              const device = devices.find(
-                (device) => device.id === item.deviceId
-              );
+              const device = supportedDeviceById(item.deviceId);
               return (
                 <div
                   key={item.i}
@@ -66,7 +62,7 @@ const SiteLayout: React.FC = () => {
                     e.preventDefault();
                   }}
                 >
-                  <DeviceGridCard key={item.i} device={device!} />
+                  <DeviceGridCard key={item.i} siteId={site.id} device={device} />
                 </div>
               );
             })}

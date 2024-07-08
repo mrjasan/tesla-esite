@@ -8,18 +8,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import EnergySite from "../lib/energySite";
-import { Send, ServerCrash, DatabaseZap } from "lucide-react";
-import { devices } from "../data";
-import { Decimals, USDollar } from "../lib/utils";
+import { ServerCrash, DatabaseZap } from "lucide-react";
+import { Decimals, USDollar, supportedDeviceById } from "../lib/utils";
 import { Separator } from "./ui/separator";
 import { toast } from "sonner";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { Input } from "./ui/input";
+import { IndustrialSite } from "../types";
+import EnergySite from "../lib/energySite";
+import { useDispatch } from "react-redux";
+import { updateSite } from "../store/siteCollectionSlice";
 
-const SubmitConfiguration = ({ eSite }: { eSite: EnergySite }) => {
-  const { deviceCount } = eSite;
+const SubmitConfiguration = ({ site }: { site: IndustrialSite }) => {
+
+  const dispatch = useDispatch();
+
+  const { devices } = site;
+  const eSite = new EnergySite(devices);
+
+  const validForm = () => {
+    return eSite.isValid && site.name && site.description;
+  }
 
   const submit = () => {
+    dispatch(updateSite({id: site.id, status: 'submitted'}));
     toast.success("Site configuration submitted successfully");
   };
 
@@ -31,7 +43,7 @@ const SubmitConfiguration = ({ eSite }: { eSite: EnergySite }) => {
           disabled={!eSite.isValid}
           variant={"outline"}
         >
-          Submit Order
+          Submit Configuration
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[600px] h-auto">
@@ -43,10 +55,19 @@ const SubmitConfiguration = ({ eSite }: { eSite: EnergySite }) => {
         </DialogHeader>
         <div className="p-4 space-y-3">
           <div className="mb-10">
-            {Object.entries(deviceCount)
+            <div className="tracking-wider text-sm mb-5">
+              <Input placeholder="Site Name*" value={site.name} onChange={(e) => {dispatch(updateSite({id: site.id, name: e.target.value}))}} />
+            </div>
+            <div className="tracking-wider text-sm mb-5">
+              <Input placeholder="Site Description*" value={site.description} onChange={(e) => {dispatch(updateSite({id: site.id, description: e.target.value}))}} />
+            </div>
+            <Separator />
+          </div>
+          <div className="mb-10">
+            {Object.entries(devices)
               .filter(([_, q]) => q)
               .map(([id, quantity]) => {
-                const device = devices.find((device) => device.id === id)!;
+                const device = supportedDeviceById(id);
                 const isTransformer = id === "transformer";
                 return (
                   <div key={id}>
@@ -106,6 +127,7 @@ const SubmitConfiguration = ({ eSite }: { eSite: EnergySite }) => {
             <Button
               type="button"
               className="bg-blue-500 w-full"
+              disabled={!validForm()}
               onClick={submit}
             >
               Submit

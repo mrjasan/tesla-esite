@@ -1,10 +1,10 @@
 import { DatabaseZap, Grip, ServerCrash, Trash } from "lucide-react";
 import { Device } from "../types";
 import { useDispatch } from "react-redux";
-import { removeDevice } from "../store/siteConfigSlice";
+import { removeDevice } from "../store/siteCollectionSlice";
 import DeviceDetailsDrawer from "./DeviceDetails";
 
-const DeviceGridCard = ({ device }: { device: Device }) => {
+const DeviceGridCard = ({ siteId, device }: { siteId: string, device: Device }) => {
   const dispatch = useDispatch();
   const { id, name, energy, dimensions } = device;
   const isTransformer = id === "transformer";
@@ -14,18 +14,26 @@ const DeviceGridCard = ({ device }: { device: Device }) => {
         <div className="cursor-move draggable flex flex-row justify-start space-x-1 items-center">
           <Grip size={14} />
         </div>
-        {!isTransformer && <Trash
-          onClick={() => {
-            console.log("Delete click");
-            dispatch(removeDevice(id));
-          }}
-          className="cursor-pointer"
-          size={14}
-          strokeWidth={1.5}
-        />}
+        {!isTransformer && (
+          <Trash
+            onClick={() => {
+              dispatch(removeDevice({id:siteId, deviceId:id}));
+            }}
+            className="cursor-pointer"
+            size={14}
+            strokeWidth={1.5}
+          />
+        )}
       </div>
       <div className="w-full mx-auto text-center justify-center items-center flex flex-col space-y-3">
-        <DeviceDetailsDrawer device={device} trigger={<span className="text-[10px] text-zinc-400 tracking-wider underline-offset-2 underline">{name}</span>}  />
+        <DeviceDetailsDrawer
+          device={device}
+          trigger={
+            <span className="text-[10px] text-zinc-400 tracking-wider underline-offset-2 underline">
+              {name}
+            </span>
+          }
+        />
         {isTransformer ? (
           <ServerCrash size={40} className="text-green-400" strokeWidth={1.5} />
         ) : (

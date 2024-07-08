@@ -1,6 +1,6 @@
 import { Device } from "../types";
 
-export const devices: Array<Device> = [
+export const supportedDevices: Array<Device> = [
   {
     id: "megapack-2xl",
     name: "Megapack 2XL",

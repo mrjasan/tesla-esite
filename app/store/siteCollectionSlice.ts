@@ -1,16 +1,8 @@
 // store/siteCollectionSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { nanoid } from "nanoid";
-import { SiteConfig } from "../types";
-
-interface IndustrialSite {
-  id: string;
-  name: string;
-  description?: string;
-  coordinates?: { x: number; y: number };
-  config: SiteConfig;
-  lastModified: number;
-}
+import { IndustrialSite } from "../types";
+import EnergySite from "../lib/energySite";
+import { supportedDevices } from "../data";
 
 interface SiteCollectionState {
   sites: IndustrialSite[];
@@ -22,21 +14,35 @@ const initialState: SiteCollectionState = {
   latestSite: null,
 };
 
+const updateTransformers = (site: IndustrialSite) => {
+  // Use EnergySite class to calculate transformers
+  const eSite = new EnergySite(site.devices);
+  const requiredTransformers = eSite.minimumTransformersNeeded;
+
+  site.devices["transformer"] = requiredTransformers;
+};
+
+const findSite = (state: SiteCollectionState, id: string) => {
+  return state.sites.find((site) => site.id === id);
+};
+
+
 const siteCollectionSlice = createSlice({
   name: "siteCollection",
   initialState,
   reducers: {
     // Add a new site to the collection
-    addSite: (state, action: PayloadAction<IndustrialSite>) => {
+    putSite: (state, action: PayloadAction<IndustrialSite>) => {
       const { payload } = action;
-      const newSite = {
-        ...payload,
-        id: nanoid(8),
-        lastModified: Date.now(),
-      };
-      state.sites.push(newSite);
+      const { id } = action.payload;
+      const idx = state.sites.findIndex((cfg) => cfg.id === id);
+      if (idx !== -1) {
+        state.sites[idx] = action.payload;
+      } else {
+        state.sites.push(payload);
+      }
       // update the latest site
-      state.latestSite = newSite;
+      state.latestSite = payload;
     },
     // Delete a site from the collection
     deleteSite: (state, action: PayloadAction<string>) => {
@@ -48,29 +54,93 @@ const siteCollectionSlice = createSlice({
           state.sites.length > 0 ? state.sites[state.sites.length - 1] : null;
       }
     },
-    // Update the site with the given id
-    updateSite: (state, action: PayloadAction<any>) => {
-      const { id, name, config, description, coordinates } = action.payload;
-      const existingSite = state.sites.find((cfg) => cfg.id === id);
-      if (existingSite) {
-        if (name) {
-          existingSite.name = name;
+    // add device to site
+    addDevice: (
+      state,
+      action: PayloadAction<{ id: string; deviceId: string }>
+    ) => {
+      const { id, deviceId } = action.payload;
+      const site = findSite(state, id);
+      if (site) {
+        site.devices[deviceId] = (site.devices[deviceId] || 0) + 1;
+        updateTransformers(site);
+        site.lastModified = Date.now();
+      }
+    },
+    // remove device from site
+    removeDevice: (
+      state,
+      action: PayloadAction<{ id: string; deviceId: string }>
+    ) => {
+      const { id, deviceId } = action.payload;
+      const site = findSite(state, id);
+      if (site) {
+        // only decrement if count is greater than 0
+        if (site.devices[deviceId] > 0) {
+          site.devices[deviceId] -= 1;
         }
-        if (config) {
-          existingSite.config = config;
+        updateTransformers(site);
+        site.lastModified = Date.now();
+      }
+    },
+
+    setQuantity: (
+      state,
+      action: PayloadAction<{ id: string; deviceId: string; quantity: number }>
+    ) => {
+      const { id, deviceId, quantity } = action.payload;
+
+      const site = findSite(state, id);
+      if (site) {
+        site.devices[deviceId] = quantity;
+
+        updateTransformers(site);
+        site.lastModified = Date.now();
+      }
+    },
+    resetSite: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      const site = findSite(state, id);
+      if(site) {
+        site.devices = {};
+        supportedDevices.forEach((device) => {site.devices[device.id] = 0;});
+        site.lastModified = Date.now();
+      }
+      
+    },
+    updateSite: (
+      state,
+      action: PayloadAction<Partial<IndustrialSite> & { id: string }>
+    ) => {
+      const { id, name, description, coordinates, devices } = action.payload;
+      const site = findSite(state, id);
+      if (site) {
+        if (name !== undefined) {
+          site.name = name;
         }
-        if (description) {
-          existingSite.description = description;
+        if (description !== undefined) {
+          site.description = description;
         }
         if (coordinates) {
-          existingSite.coordinates = coordinates;
+          site.coordinates = coordinates;
         }
-        existingSite.lastModified = Date.now();
-        state.latestSite = existingSite;
+        if (devices) {
+          site.devices = devices;
+          updateTransformers(site);
+        }
+        site.lastModified = Date.now();
       }
     },
   },
 });
 
-export const { addSite, deleteSite, updateSite } = siteCollectionSlice.actions;
+export const {
+  putSite,
+  deleteSite,
+  addDevice,
+  removeDevice,
+  setQuantity,
+  updateSite,
+  resetSite,
+} = siteCollectionSlice.actions;
 export default siteCollectionSlice.reducer;
