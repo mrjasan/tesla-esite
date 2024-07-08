@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Link from "next/link";
 import MainContent from "./components/MainContent";
@@ -12,22 +12,35 @@ const cover_style = {
 };
 
 export default function Home() {
-
   const siteManager = useSite();
 
   return (
     <MainContent>
       <div
-        className="min-h-[768px] w-full h-full mx-auto flex-grow flex justify-center items-center"
+        className="min-h-[768px] w-full h-full mx-auto flex-grow flex"
         style={cover_style}
       >
-        <div className="h-full items-center justify-between space-x-4 flex pt-80">
-          <Button className="w-48 h-10 bg-indigo-500" onClick={siteManager.create}>
-            New Site
-          </Button>
-          <Button className="w-48 h-10" variant={"outline"}>
-            <Link href="/sites">Manage Sites</Link>
-          </Button>
+        <div className="flex flex-col justify-center items-center w-full h-full bg-white bg-opacity-60">
+          <div className="p-10 my-10 mx-auto text-center">
+            <h1 className="text-4xl font-bold mb-5 text-black">
+              Industrial Energy Site Manager
+            </h1>
+            <p className="pt-10 text-zinc-700">
+              Welcome to Tesla&apos;s Industrial Energy Site Manager.<br></br>
+              Get started by creating a new site or managing existing sites.
+            </p>
+          </div>
+          <div className="items-center justify-between space-x-4">
+            <Button
+              className="w-48 h-10 bg-indigo-500"
+              onClick={siteManager.create}
+            >
+              New Site
+            </Button>
+            <Button className="w-48 h-10" variant={"outline"}>
+              <Link href="/sites">Manage Sites</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </MainContent>
